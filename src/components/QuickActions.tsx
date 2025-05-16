@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bike, Bus, Leaf, Trash, Lightbulb, Calculator } from "lucide-react";
+import { Bike, Bus, Leaf, Trash, Lightbulb, Calculator, Meditation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 interface ActionStats {
   carbonFootprint: number;
@@ -12,6 +13,7 @@ interface ActionStats {
   treesPlanted: number;
   wasteSegregated: number;
   energySaved: number;
+  mentalExercise: number;
 }
 
 const QuickActions = () => {
@@ -23,6 +25,7 @@ const QuickActions = () => {
     treesPlanted: 0,
     wasteSegregated: 0,
     energySaved: 0,
+    mentalExercise: 0,
   });
 
   const handleActionClick = (action: keyof ActionStats) => {
@@ -38,6 +41,7 @@ const QuickActions = () => {
       treesPlanted: "You planted a tree! 🌱 It will absorb ~25kg of CO2 annually",
       wasteSegregated: "Waste properly segregated! ♻️ Thank you for recycling",
       energySaved: "Energy efficient choice! 💡 Saved 5 kWh of electricity",
+      mentalExercise: "Mental wellness exercise logged! 🧘 Great for your wellbeing",
     };
 
     toast({
@@ -46,20 +50,48 @@ const QuickActions = () => {
     });
   };
 
-  const ActionCard = ({ title, icon, action }: { title: string; icon: React.ReactNode; action: keyof ActionStats }) => (
-    <Card 
-      className="eco-card" 
-      onClick={() => handleActionClick(action)}
-    >
-      <CardContent className="p-4 flex flex-col items-center">
-        <div className="text-eco mb-3 text-3xl">{icon}</div>
-        <h3 className="font-medium text-gray-800">{title}</h3>
-        <div className="mt-2 text-sm text-gray-500">
-          Count: <span className="font-bold text-eco">{stats[action]}</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const ActionCard = ({ title, icon, action, isLink = false, to = "" }: { 
+    title: string; 
+    icon: React.ReactNode; 
+    action: keyof ActionStats;
+    isLink?: boolean;
+    to?: string;
+  }) => {
+    const content = (
+      <div className="text-eco mb-3 text-3xl">{icon}</div>
+    );
+
+    if (isLink) {
+      return (
+        <Card className="eco-card hover:shadow-lg transition-all duration-300">
+          <Link to={to}>
+            <CardContent className="p-4 flex flex-col items-center">
+              {content}
+              <h3 className="font-medium text-gray-800">{title}</h3>
+              <div className="mt-2 text-sm text-gray-500">
+                Count: <span className="font-bold text-eco">{stats[action]}</span>
+              </div>
+            </CardContent>
+          </Link>
+        </Card>
+      );
+    }
+
+    return (
+      <Card 
+        className="eco-card hover:shadow-lg transition-all duration-300" 
+        onClick={() => handleActionClick(action)}
+      >
+        <CardContent className="p-4 flex flex-col items-center">
+          {content}
+          <h3 className="font-medium text-gray-800">{title}</h3>
+          <div className="mt-2 text-sm text-gray-500">
+            Count: <span className="font-bold text-eco">{stats[action]}</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="bg-gray-50 py-12">
@@ -68,7 +100,7 @@ const QuickActions = () => {
           Quick Actions
         </h2>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
           <ActionCard 
             title="Carbon Footprint" 
             icon={<Calculator size={36} />} 
@@ -98,6 +130,13 @@ const QuickActions = () => {
             title="Energy Saved" 
             icon={<Lightbulb size={36} />} 
             action="energySaved" 
+          />
+          <ActionCard 
+            title="Mental Exercise" 
+            icon={<Meditation size={36} />} 
+            action="mentalExercise"
+            isLink={true}
+            to="/yoga"
           />
         </div>
 
