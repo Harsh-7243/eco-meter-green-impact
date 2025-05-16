@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Timer, Play, Check, Pause } from "lucide-react";
+import { ArrowLeft, Timer, Play, Check, Pause, Yoga } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface YogaRoutine {
@@ -175,7 +174,7 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
       >
         <CollapsibleTrigger className="flex justify-between items-center w-full p-4 text-left">
           <div className="flex items-center">
-            <Meditation className="mr-2 h-5 w-5 text-green-600" />
+            <Yoga className="mr-2 h-5 w-5 text-green-600" />
             <h3 className="text-lg font-medium">{routine.title}</h3>
           </div>
           <div className="text-sm text-gray-500">
@@ -312,7 +311,7 @@ const Yoga = () => {
           <div className="lg:col-span-3">
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center text-eco-dark">
-                <Meditation className="mr-2" />
+                <Yoga className="mr-2" />
                 Yoga Routines
               </h2>
               
