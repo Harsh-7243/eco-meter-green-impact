@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Timer, Play, Check, Pause } from "lucide-react";
 import { Link } from "react-router-dom";
+import YogaHistory from '@/components/YogaHistory';
 
 interface YogaRoutine {
   id: string;
@@ -22,6 +22,14 @@ interface YogaAction {
   action: string;
   points: number;
   description: string;
+}
+
+interface YogaSession {
+  id: string;
+  routine: string;
+  date: string;
+  duration: number;
+  calories: number;
 }
 
 const yogaRoutines: YogaRoutine[] = [
@@ -105,7 +113,10 @@ const calculateCalories = (age: number, duration: number): number => {
   return Math.round(MET * estimatedWeight * (duration / 60));
 };
 
-const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
+const YogaRoutineCard = ({ routine, onSessionComplete }: { 
+  routine: YogaRoutine; 
+  onSessionComplete: (session: YogaSession) => void;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [age, setAge] = useState<number>(30);
   const [duration, setDuration] = useState<number>(10);
@@ -159,9 +170,21 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
   };
 
   const handleComplete = () => {
+    // Create a new yoga session
+    const newSession: YogaSession = {
+      id: Date.now().toString(),
+      routine: routine.title,
+      date: new Date().toLocaleDateString(),
+      duration: duration,
+      calories: calories
+    };
+    
+    // Call the callback to track the session
+    onSessionComplete(newSession);
+    
     toast({
       title: "Action Completed!",
-      description: `You've earned points for completing ${routine.title}!`,
+      description: `You've earned ${Math.round(duration/2)} points for completing ${routine.title}!`,
     });
   };
 
@@ -266,13 +289,15 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
                   )}
                 </div>
                 
-                <Button
-                  onClick={handleComplete}
-                  className="w-full bg-eco hover:bg-eco-dark"
-                >
-                  <Check className="mr-2 h-4 w-4" /> 
-                  Mark as Done + Earn Points
-                </Button>
+                <div className="flex justify-end space-x-2 p-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleComplete}
+                    className="bg-eco text-white hover:bg-eco-dark"
+                  >
+                    <Check className="w-4 h-4 mr-2" /> Mark as Done + Earn Points
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -283,31 +308,30 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
 };
 
 const YogaPage = () => {
+  const [sessions, setSessions] = useState<YogaSession[]>([]);
+
+  const handleSessionComplete = (session: YogaSession) => {
+    setSessions(prev => [session, ...prev]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-eco hover:text-eco-dark">
+        <div className="mb-8">
+          <Link to="/" className="text-eco hover:text-eco-dark flex items-center">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </div>
         
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-eco-dark">Mental Exercise - Yoga</h1>
-            <p className="text-gray-600 mt-1">
-              Practice mindfulness through yoga routines to improve mental wellbeing
-            </p>
-          </div>
-          <div className="mt-4 md:mt-0">
-            <Button className="bg-eco hover:bg-eco-dark text-white">
-              View Your Yoga History
-            </Button>
-          </div>
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-eco-dark">Mental Exercise - Yoga</h1>
+          <p className="text-gray-600 mt-2">
+            Strengthen your mind and body while earning eco-points
+          </p>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center text-eco-dark">
@@ -315,52 +339,57 @@ const YogaPage = () => {
                 Yoga Routines
               </h2>
               
-              <div>
+              <div className="space-y-2">
                 {yogaRoutines.map((routine) => (
-                  <YogaRoutineCard key={routine.id} routine={routine} />
+                  <YogaRoutineCard 
+                    key={routine.id} 
+                    routine={routine} 
+                    onSessionComplete={handleSessionComplete}
+                  />
                 ))}
               </div>
             </div>
+            
+            <YogaHistory sessions={sessions} />
           </div>
           
-          <div className="lg:col-span-2">
-            <div className="bg-white p-6 rounded-lg shadow-sm sticky top-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center text-eco-dark">
-                Gamified Yoga Actions
-              </h2>
-              
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Action</TableHead>
-                    <TableHead className="text-center">Points</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {yogaActions.map((action, index) => (
-                    <TableRow key={index} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{action.action}</div>
-                          <div className="text-gray-500 text-sm">{action.description}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center font-bold text-green-600">
-                        +{action.points}
-                      </TableCell>
+          <div className="lg:col-span-1">
+            <div className="bg-white p-6 rounded-lg shadow-sm sticky top-8">
+              <h2 className="text-xl font-semibold mb-4 text-eco-dark">Yoga Actions</h2>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Points</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {yogaActions.map((action, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{action.action}</div>
+                            <div className="text-xs text-gray-500">{action.description}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-semibold text-eco">+{action.points}</span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               
-              <div className="mt-6 p-4 bg-gray-50 rounded-md border border-gray-200">
-                <h3 className="font-medium mb-2">About Yoga Points</h3>
-                <p className="text-gray-600 text-sm">
-                  Earn points by completing yoga routines and activities. 
-                  These points contribute to your overall eco score and 
-                  position on the leaderboard. Regular practice leads to 
-                  bonus points!
-                </p>
+              <div className="mt-6 bg-eco-light p-4 rounded-lg">
+                <h3 className="font-medium mb-2">Pro Tips</h3>
+                <ul className="text-sm space-y-2">
+                  <li>• Practice in a quiet space</li>
+                  <li>• Focus on your breathing</li>
+                  <li>• Listen to your body</li>
+                  <li>• Stay consistent for best results</li>
+                </ul>
               </div>
             </div>
           </div>

@@ -1,9 +1,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Home, Calculator, Award, MessageSquare, Users, Gift, User, LogOut, X } from "lucide-react";
+import { Menu, Home, Calculator, Award, MessageSquare, Users, Gift, User, LogOut, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,27 +35,59 @@ const Navbar = () => {
             >
               <Menu className="h-6 w-6 text-eco-dark" />
             </Button>
-            <div className="flex items-center">
+            <Link to="/" className="flex items-center">
               <div className="bg-eco rounded-full p-2 mr-2">
                 <div className="text-white text-xl font-bold">🍃</div>
               </div>
               <h1 className="text-eco-dark font-bold text-xl hidden sm:block">Eco Meter</h1>
-            </div>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
-            <NavItem icon={<Home className="h-4 w-4 mr-1" />} label="Home" onClick={() => handleMenuItemClick("Home")} />
-            <NavItem icon={<Calculator className="h-4 w-4 mr-1" />} label="Calculator" onClick={() => handleMenuItemClick("Calculator")} />
-            <NavItem icon={<Award className="h-4 w-4 mr-1" />} label="Achievements" onClick={() => handleMenuItemClick("Achievements")} />
-            <NavItem icon={<MessageSquare className="h-4 w-4 mr-1" />} label="Eco Tips" onClick={() => handleMenuItemClick("Eco Tips")} />
-            <NavItem icon={<Users className="h-4 w-4 mr-1" />} label="Leaderboard" onClick={() => handleMenuItemClick("Leaderboard")} />
+            <NavItem 
+              icon={<Home className="h-4 w-4 mr-1" />} 
+              label="Home" 
+              to="/"
+            />
+            <NavItem 
+              icon={<Calculator className="h-4 w-4 mr-1" />} 
+              label="Calculator" 
+              to="/calculator"
+            />
+            <NavItem 
+              icon={<Award className="h-4 w-4 mr-1" />} 
+              label="Achievements" 
+              onClick={() => handleMenuItemClick("Achievements")}
+            />
+            <NavItem 
+              icon={<MessageSquare className="h-4 w-4 mr-1" />} 
+              label="Eco Tips" 
+              to="/leaders"
+            />
+            <NavItem 
+              icon={<Users className="h-4 w-4 mr-1" />} 
+              label="Leaderboard" 
+              to="/leaderboard"
+            />
+            <NavItem 
+              icon={<Trophy className="h-4 w-4 mr-1" />} 
+              label="Quiz" 
+              to="/quiz"
+            />
+            <NavItem 
+              icon={<Gift className="h-4 w-4 mr-1" />} 
+              label="Rewards" 
+              to="/rewards"
+            />
           </div>
 
-          <Button variant="ghost" onClick={() => handleMenuItemClick("Profile")} className="flex items-center">
-            <User className="h-5 w-5 text-eco-dark mr-1" />
-            <span className="hidden sm:inline">Profile</span>
-          </Button>
+          <Link to="/profile">
+            <Button variant="ghost" className="flex items-center">
+              <User className="h-5 w-5 text-eco-dark mr-1" />
+              <span className="hidden sm:inline">Profile</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -86,15 +119,16 @@ const Navbar = () => {
         </div>
 
         <div className="py-2">
-          <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" onClick={() => handleMenuItemClick("Home")} />
-          <SidebarItem icon={<Menu className="h-5 w-5" />} label="Quick Actions" onClick={() => handleMenuItemClick("Quick Actions")} />
-          <SidebarItem icon={<Calculator className="h-5 w-5" />} label="Calculator" onClick={() => handleMenuItemClick("Calculator")} />
-          <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Eco Tips" onClick={() => handleMenuItemClick("Eco Tips")} />
+          <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" to="/" />
+          <SidebarItem icon={<Menu className="h-5 w-5" />} label="Quick Actions" to="/" />
+          <SidebarItem icon={<Calculator className="h-5 w-5" />} label="Calculator" to="/calculator" />
+          <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Eco Tips" to="/leaders" />
           <SidebarItem icon={<Award className="h-5 w-5" />} label="Achievements" onClick={() => handleMenuItemClick("Achievements")} />
           <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Posts" onClick={() => handleMenuItemClick("Posts")} />
-          <SidebarItem icon={<Users className="h-5 w-5" />} label="Leaderboard" onClick={() => handleMenuItemClick("Leaderboard")} />
-          <SidebarItem icon={<Gift className="h-5 w-5" />} label="Rewards" onClick={() => handleMenuItemClick("Rewards")} />
-          <SidebarItem icon={<User className="h-5 w-5" />} label="Profile" onClick={() => handleMenuItemClick("Profile")} />
+          <SidebarItem icon={<Users className="h-5 w-5" />} label="Leaderboard" to="/leaderboard" />
+          <SidebarItem icon={<Trophy className="h-5 w-5" />} label="Quiz" to="/quiz" />
+          <SidebarItem icon={<Gift className="h-5 w-5" />} label="Rewards" to="/rewards" />
+          <SidebarItem icon={<User className="h-5 w-5" />} label="Profile" to="/profile" />
           
           <div className="border-t mt-4 pt-4">
             <SidebarItem icon={<LogOut className="h-5 w-5" />} label="Logout" onClick={() => handleMenuItemClick("Logout")} />
@@ -105,21 +139,61 @@ const Navbar = () => {
   );
 };
 
-const NavItem = ({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) => (
-  <Button variant="ghost" onClick={onClick} className="flex items-center text-muted-foreground hover:text-foreground">
-    {icon}
-    <span>{label}</span>
-  </Button>
-);
+type NavItemProps = {
+  icon: React.ReactNode;
+  label: string;
+  to?: string;
+  onClick?: () => void;
+};
 
-const SidebarItem = ({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) => (
-  <div
-    className="flex items-center px-4 py-3 hover:bg-eco-light cursor-pointer"
-    onClick={onClick}
-  >
-    <div className="mr-3 text-eco-dark">{icon}</div>
-    <span className="text-gray-800">{label}</span>
-  </div>
-);
+const NavItem = ({ icon, label, to, onClick }: NavItemProps) => {
+  if (to) {
+    return (
+      <Link to={to}>
+        <Button variant="ghost" className="flex items-center text-muted-foreground hover:text-foreground">
+          {icon}
+          <span>{label}</span>
+        </Button>
+      </Link>
+    );
+  }
+  
+  return (
+    <Button variant="ghost" onClick={onClick} className="flex items-center text-muted-foreground hover:text-foreground">
+      {icon}
+      <span>{label}</span>
+    </Button>
+  );
+};
+
+type SidebarItemProps = {
+  icon: React.ReactNode;
+  label: string;
+  to?: string;
+  onClick?: () => void;
+};
+
+const SidebarItem = ({ icon, label, to, onClick }: SidebarItemProps) => {
+  if (to) {
+    return (
+      <Link to={to}>
+        <div className="flex items-center px-4 py-3 hover:bg-eco-light cursor-pointer">
+          <div className="mr-3 text-eco-dark">{icon}</div>
+          <span className="text-gray-800">{label}</span>
+        </div>
+      </Link>
+    );
+  }
+  
+  return (
+    <div
+      className="flex items-center px-4 py-3 hover:bg-eco-light cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="mr-3 text-eco-dark">{icon}</div>
+      <span className="text-gray-800">{label}</span>
+    </div>
+  );
+};
 
 export default Navbar;

@@ -105,6 +105,8 @@ const QuickActions = () => {
             title="Carbon Footprint" 
             icon={<Calculator size={36} />} 
             action="carbonFootprint" 
+            isLink={true}
+            to="/calculator"
           />
           <ActionCard 
             title="Bike to Work" 
