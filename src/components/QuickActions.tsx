@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bike, Bus, Leaf, Trash, Lightbulb, Calculator, Yoga } from "lucide-react";
+import { Bike, Bus, Leaf, Trash, Lightbulb, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
@@ -133,7 +133,7 @@ const QuickActions = () => {
           />
           <ActionCard 
             title="Mental Exercise" 
-            icon={<Yoga size={36} />} 
+            icon={<span role="img" aria-label="yoga">🧘</span>} 
             action="mentalExercise"
             isLink={true}
             to="/yoga"

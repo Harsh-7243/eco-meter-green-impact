@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Timer, Play, Check, Pause, Yoga } from "lucide-react";
+import { ArrowLeft, Timer, Play, Check, Pause } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface YogaRoutine {
@@ -174,7 +174,7 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
       >
         <CollapsibleTrigger className="flex justify-between items-center w-full p-4 text-left">
           <div className="flex items-center">
-            <Yoga className="mr-2 h-5 w-5 text-green-600" />
+            <span className="mr-2 h-5 w-5 text-green-600">🧘</span>
             <h3 className="text-lg font-medium">{routine.title}</h3>
           </div>
           <div className="text-sm text-gray-500">
@@ -282,7 +282,7 @@ const YogaRoutineCard = ({ routine }: { routine: YogaRoutine }) => {
   );
 };
 
-const Yoga = () => {
+const YogaPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -311,7 +311,7 @@ const Yoga = () => {
           <div className="lg:col-span-3">
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center text-eco-dark">
-                <Yoga className="mr-2" />
+                <span className="mr-2">🧘</span>
                 Yoga Routines
               </h2>
               
@@ -370,4 +370,4 @@ const Yoga = () => {
   );
 };
 
-export default Yoga;
+export default YogaPage;
