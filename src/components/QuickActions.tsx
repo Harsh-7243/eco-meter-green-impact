@@ -143,9 +143,11 @@ const QuickActions = () => {
         </div>
 
         <div className="flex justify-center mt-8">
-          <Button className="bg-eco hover:bg-eco-dark text-white px-6">
-            View All Actions
-          </Button>
+          <Link to="/ecotips">
+            <Button className="bg-eco hover:bg-eco-dark text-white px-6">
+              View All Actions
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,9 +10,13 @@ import { Label } from "@/components/ui/label";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { User, Edit, Save, Award, Calendar, Activity } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("actions");
   const [userData, setUserData] = useState({
     name: "Emma Watson",
     email: "emma.watson@example.com",
@@ -20,6 +24,24 @@ const ProfilePage = () => {
     joinDate: "May 12, 2024",
     bio: "Environmental activist and sustainability enthusiast. Passionate about making our planet greener one step at a time."
   });
+
+  // Get the tab from URL query parameter
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get('tab');
+    if (tab === 'achievements') {
+      setActiveTab("achievements");
+    } else if (tab === 'analytics') {
+      setActiveTab("analytics");
+    } else if (tab === 'actions') {
+      setActiveTab("actions");
+    }
+  }, [location.search]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    navigate(`/profile?tab=${value}`);
+  };
 
   const recentActions = [
     { id: 1, action: "Completed 20-min Outdoor Yoga", date: "Today", points: 10 },
@@ -30,10 +52,14 @@ const ProfilePage = () => {
   ];
 
   const badges = [
-    { name: "Tree Master", description: "Planted 10+ trees", icon: "🌳" },
-    { name: "Eco Warrior", description: "Completed 100+ eco actions", icon: "🛡️" },
-    { name: "Quiz Champion", description: "Answered 50+ quiz questions correctly", icon: "🧠" },
-    { name: "Transport Hero", description: "Used public transport 30+ times", icon: "🚌" },
+    { name: "Tree Master", description: "Planted 10+ trees", icon: "🌳", earned: true },
+    { name: "Eco Warrior", description: "Completed 100+ eco actions", icon: "🛡️", earned: true },
+    { name: "Quiz Champion", description: "Answered 50+ quiz questions correctly", icon: "🧠", earned: true },
+    { name: "Transport Hero", description: "Used public transport 30+ times", icon: "🚌", earned: true },
+    { name: "Water Saver", description: "Save 1000+ liters of water", icon: "💧", earned: false },
+    { name: "Energy Star", description: "Save 50+ kWh of electricity", icon: "⚡", earned: false },
+    { name: "Meditation Master", description: "Complete 20+ yoga sessions", icon: "🧘", earned: true },
+    { name: "Zero Waste Pioneer", description: "Reduce waste by 90%", icon: "♻️", earned: false }
   ];
 
   const handleEditToggle = () => {
@@ -81,7 +107,7 @@ const ProfilePage = () => {
               <CardContent className="pt-0">
                 <div className="flex justify-center -mt-16 mb-4">
                   <Avatar className="h-32 w-32 border-4 border-white">
-                    <AvatarImage src="/src/assets/avatar1.png" />
+                    <AvatarImage src="https://i.pravatar.cc/300?img=5" />
                     <AvatarFallback className="bg-eco text-white text-2xl">
                       {userData.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
@@ -147,7 +173,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="lg:col-span-2">
-            <Tabs defaultValue="actions">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="grid grid-cols-3 mb-6">
                 <TabsTrigger value="actions" className="flex items-center">
                   <Activity className="h-4 w-4 mr-2" />
@@ -267,36 +293,19 @@ const ProfilePage = () => {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {badges.map((badge, index) => (
-                        <div key={index} className="border rounded-lg p-4 flex items-center gap-4">
-                          <div className="bg-eco-light w-12 h-12 rounded-full flex items-center justify-center text-2xl">
-                            {badge.icon}
+                        <div key={index} className={`border rounded-lg p-4 flex items-center gap-4 ${!badge.earned ? 'opacity-60' : ''}`}>
+                          <div className={`${badge.earned ? 'bg-eco-light' : 'bg-gray-100'} w-12 h-12 rounded-full flex items-center justify-center text-2xl`}>
+                            {badge.earned ? badge.icon : '🔒'}
                           </div>
                           <div>
                             <h3 className="font-medium">{badge.name}</h3>
                             <p className="text-sm text-gray-500">{badge.description}</p>
+                            {badge.earned && (
+                              <Badge className="mt-1 bg-green-100 text-green-800 hover:bg-green-200">Earned</Badge>
+                            )}
                           </div>
                         </div>
                       ))}
-                      
-                      <div className="border border-dashed rounded-lg p-4 flex items-center gap-4">
-                        <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center text-2xl">
-                          🔒
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Water Saver</h3>
-                          <p className="text-sm text-gray-500">Save 1000+ liters of water</p>
-                        </div>
-                      </div>
-
-                      <div className="border border-dashed rounded-lg p-4 flex items-center gap-4">
-                        <div className="bg-gray-100 w-12 h-12 rounded-full flex items-center justify-center text-2xl">
-                          🔒
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Energy Star</h3>
-                          <p className="text-sm text-gray-500">Save 50+ kWh of electricity</p>
-                        </div>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

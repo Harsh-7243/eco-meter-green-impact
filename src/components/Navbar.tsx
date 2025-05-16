@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Menu, Home, Calculator, Award, MessageSquare, Users, Gift, User, LogOut, X, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { toast } = useToast();
+  const location = useLocation();
 
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -49,41 +50,54 @@ const Navbar = () => {
               icon={<Home className="h-4 w-4 mr-1" />} 
               label="Home" 
               to="/"
+              isActive={location.pathname === "/"}
             />
             <NavItem 
               icon={<Calculator className="h-4 w-4 mr-1" />} 
               label="Calculator" 
               to="/calculator"
+              isActive={location.pathname === "/calculator"}
             />
             <NavItem 
               icon={<Award className="h-4 w-4 mr-1" />} 
               label="Achievements" 
-              onClick={() => handleMenuItemClick("Achievements")}
+              to="/profile?tab=achievements"
+              isActive={location.pathname === "/profile" && location.search.includes("achievements")}
             />
             <NavItem 
               icon={<MessageSquare className="h-4 w-4 mr-1" />} 
               label="Eco Tips" 
-              to="/leaders"
+              to="/ecotips"
+              isActive={location.pathname === "/ecotips"}
             />
             <NavItem 
               icon={<Users className="h-4 w-4 mr-1" />} 
               label="Leaderboard" 
               to="/leaderboard"
+              isActive={location.pathname === "/leaderboard"}
             />
             <NavItem 
               icon={<Trophy className="h-4 w-4 mr-1" />} 
               label="Quiz" 
               to="/quiz"
+              isActive={location.pathname === "/quiz"}
             />
             <NavItem 
               icon={<Gift className="h-4 w-4 mr-1" />} 
               label="Rewards" 
               to="/rewards"
+              isActive={location.pathname === "/rewards"}
             />
           </div>
 
           <Link to="/profile">
-            <Button variant="ghost" className="flex items-center">
+            <Button 
+              variant="ghost" 
+              className={cn(
+                "flex items-center",
+                location.pathname === "/profile" && "bg-gray-100"
+              )}
+            >
               <User className="h-5 w-5 text-eco-dark mr-1" />
               <span className="hidden sm:inline">Profile</span>
             </Button>
@@ -119,19 +133,68 @@ const Navbar = () => {
         </div>
 
         <div className="py-2">
-          <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" to="/" />
-          <SidebarItem icon={<Menu className="h-5 w-5" />} label="Quick Actions" to="/" />
-          <SidebarItem icon={<Calculator className="h-5 w-5" />} label="Calculator" to="/calculator" />
-          <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Eco Tips" to="/leaders" />
-          <SidebarItem icon={<Award className="h-5 w-5" />} label="Achievements" onClick={() => handleMenuItemClick("Achievements")} />
-          <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Posts" onClick={() => handleMenuItemClick("Posts")} />
-          <SidebarItem icon={<Users className="h-5 w-5" />} label="Leaderboard" to="/leaderboard" />
-          <SidebarItem icon={<Trophy className="h-5 w-5" />} label="Quiz" to="/quiz" />
-          <SidebarItem icon={<Gift className="h-5 w-5" />} label="Rewards" to="/rewards" />
-          <SidebarItem icon={<User className="h-5 w-5" />} label="Profile" to="/profile" />
+          <SidebarItem 
+            icon={<Home className="h-5 w-5" />} 
+            label="Home" 
+            to="/" 
+            isActive={location.pathname === "/"}
+          />
+          <SidebarItem 
+            icon={<Menu className="h-5 w-5" />} 
+            label="Quick Actions" 
+            to="/" 
+            isActive={false}
+          />
+          <SidebarItem 
+            icon={<Calculator className="h-5 w-5" />} 
+            label="Calculator" 
+            to="/calculator" 
+            isActive={location.pathname === "/calculator"}
+          />
+          <SidebarItem 
+            icon={<MessageSquare className="h-5 w-5" />} 
+            label="Eco Tips" 
+            to="/ecotips" 
+            isActive={location.pathname === "/ecotips"}
+          />
+          <SidebarItem 
+            icon={<Award className="h-5 w-5" />} 
+            label="Achievements" 
+            to="/profile?tab=achievements" 
+            isActive={location.pathname === "/profile" && location.search.includes("achievements")}
+          />
+          <SidebarItem 
+            icon={<Users className="h-5 w-5" />} 
+            label="Leaderboard" 
+            to="/leaderboard" 
+            isActive={location.pathname === "/leaderboard"}
+          />
+          <SidebarItem 
+            icon={<Trophy className="h-5 w-5" />} 
+            label="Quiz" 
+            to="/quiz" 
+            isActive={location.pathname === "/quiz"}
+          />
+          <SidebarItem 
+            icon={<Gift className="h-5 w-5" />} 
+            label="Rewards" 
+            to="/rewards" 
+            isActive={location.pathname === "/rewards"}
+          />
+          <SidebarItem 
+            icon={<User className="h-5 w-5" />} 
+            label="Profile" 
+            to="/profile" 
+            isActive={location.pathname === "/profile" && !location.search.includes("achievements")}
+          />
           
           <div className="border-t mt-4 pt-4">
-            <SidebarItem icon={<LogOut className="h-5 w-5" />} label="Logout" onClick={() => handleMenuItemClick("Logout")} />
+            <SidebarItem 
+              icon={<LogOut className="h-5 w-5" />} 
+              label="Logout" 
+              onClick={() => handleMenuItemClick("Logout")} 
+              isActive={false}
+            />
           </div>
         </div>
       </div>
@@ -144,13 +207,22 @@ type NavItemProps = {
   label: string;
   to?: string;
   onClick?: () => void;
+  isActive?: boolean;
 };
 
-const NavItem = ({ icon, label, to, onClick }: NavItemProps) => {
+const NavItem = ({ icon, label, to, onClick, isActive = false }: NavItemProps) => {
   if (to) {
     return (
       <Link to={to}>
-        <Button variant="ghost" className="flex items-center text-muted-foreground hover:text-foreground">
+        <Button 
+          variant="ghost" 
+          className={cn(
+            "flex items-center", 
+            isActive 
+              ? "text-foreground bg-gray-100" 
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
           {icon}
           <span>{label}</span>
         </Button>
@@ -159,7 +231,11 @@ const NavItem = ({ icon, label, to, onClick }: NavItemProps) => {
   }
   
   return (
-    <Button variant="ghost" onClick={onClick} className="flex items-center text-muted-foreground hover:text-foreground">
+    <Button 
+      variant="ghost" 
+      onClick={onClick} 
+      className="flex items-center text-muted-foreground hover:text-foreground"
+    >
       {icon}
       <span>{label}</span>
     </Button>
@@ -171,13 +247,17 @@ type SidebarItemProps = {
   label: string;
   to?: string;
   onClick?: () => void;
+  isActive?: boolean;
 };
 
-const SidebarItem = ({ icon, label, to, onClick }: SidebarItemProps) => {
+const SidebarItem = ({ icon, label, to, onClick, isActive = false }: SidebarItemProps) => {
   if (to) {
     return (
       <Link to={to}>
-        <div className="flex items-center px-4 py-3 hover:bg-eco-light cursor-pointer">
+        <div className={cn(
+          "flex items-center px-4 py-3 hover:bg-eco-light cursor-pointer",
+          isActive && "bg-eco-light"
+        )}>
           <div className="mr-3 text-eco-dark">{icon}</div>
           <span className="text-gray-800">{label}</span>
         </div>
