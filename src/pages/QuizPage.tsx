@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Trophy } from 'lucide-react';
+import { Trophy, Award, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -17,6 +17,14 @@ interface QuizQuestion {
   options: string[];
   correctAnswer: number;
   explanation: string;
+}
+
+interface QuizResult {
+  id: string;
+  date: string;
+  score: number;
+  totalQuestions: number;
+  percentageScore: number;
 }
 
 const quizQuestions: QuizQuestion[] = [
@@ -63,7 +71,16 @@ const QuizPage = () => {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizHistory, setQuizHistory] = useState<QuizResult[]>([]);
   const { toast } = useToast();
+
+  // Load quiz history from localStorage on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('ecoQuizHistory');
+    if (savedHistory) {
+      setQuizHistory(JSON.parse(savedHistory));
+    }
+  }, []);
 
   const currentQuestion = quizQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex) / quizQuestions.length) * 100;
@@ -95,10 +112,28 @@ const QuizPage = () => {
       setSelectedOption(null);
       setHasAnswered(false);
     } else {
+      const finalScore = score + (selectedOption === currentQuestion.correctAnswer ? 1 : 0);
+      const percentageScore = (finalScore / quizQuestions.length) * 100;
+      
+      // Save quiz result to history
+      const newResult: QuizResult = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        score: finalScore,
+        totalQuestions: quizQuestions.length,
+        percentageScore
+      };
+      
+      const updatedHistory = [...quizHistory, newResult];
+      setQuizHistory(updatedHistory);
+      
+      // Save to localStorage
+      localStorage.setItem('ecoQuizHistory', JSON.stringify(updatedHistory));
+      
       setQuizCompleted(true);
       toast({
         title: "Quiz Completed!",
-        description: `You scored ${score + (selectedOption === currentQuestion.correctAnswer ? 1 : 0)} out of ${quizQuestions.length}.`,
+        description: `You scored ${finalScore} out of ${quizQuestions.length}.`,
       });
     }
   };
@@ -111,8 +146,19 @@ const QuizPage = () => {
     setQuizCompleted(false);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const renderQuiz = () => (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto shadow-md hover:shadow-lg transition-shadow">
       <CardHeader className="bg-eco-gradient text-white rounded-t-lg">
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl">Eco Knowledge Quiz</CardTitle>
@@ -194,7 +240,7 @@ const QuizPage = () => {
     }
 
     return (
-      <Card className="w-full max-w-3xl mx-auto text-center">
+      <Card className="w-full max-w-3xl mx-auto text-center shadow-md">
         <CardHeader className="bg-eco-gradient text-white rounded-t-lg">
           <CardTitle className="text-2xl">Quiz Results</CardTitle>
         </CardHeader>
@@ -237,15 +283,68 @@ const QuizPage = () => {
       <Navbar />
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-eco-dark mb-8">
+          <h2 className="text-3xl font-bold text-center text-eco-dark mb-4">
             Eco Knowledge Quiz
           </h2>
-          <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
+          <p className="text-center text-gray-600 max-w-2xl mx-auto mb-8">
             Test your environmental knowledge with our quiz! Each correct answer earns you points 
             and helps you learn more about sustainable living.
           </p>
           
           {quizCompleted ? renderResults() : renderQuiz()}
+          
+          {/* Quiz history section */}
+          {quizHistory.length > 0 && (
+            <div className="mt-12 max-w-3xl mx-auto">
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Award className="w-5 h-5 mr-2 text-eco" />
+                Your Quiz History
+              </h3>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-eco bg-opacity-10 text-left">
+                          <th className="py-2 px-3 border-b">Date</th>
+                          <th className="py-2 px-3 border-b">Score</th>
+                          <th className="py-2 px-3 border-b">Performance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {quizHistory.slice().reverse().map((result) => (
+                          <tr key={result.id} className="hover:bg-gray-50">
+                            <td className="py-2 px-3 border-b">{formatDate(result.date)}</td>
+                            <td className="py-2 px-3 border-b font-medium">
+                              {result.score}/{result.totalQuestions}
+                              <span className="ml-2 text-sm text-gray-500">
+                                ({result.percentageScore.toFixed(0)}%)
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 border-b">
+                              <div className="flex items-center gap-1">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star 
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < Math.round(result.percentageScore / 20) 
+                                        ? 'fill-amber-400 text-amber-400' 
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           
           <div className="mt-12 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm">
             <h3 className="font-semibold mb-4">Why Environmental Knowledge Matters</h3>

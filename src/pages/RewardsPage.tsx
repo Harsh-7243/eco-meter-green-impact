@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Gift, ChevronRight, Info } from 'lucide-react';
+import { Gift, ChevronRight, Info, Sparkles, Star, Award } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { motion } from 'framer-motion';
 
 interface Reward {
   id: string;
@@ -100,8 +101,14 @@ const rewards: Reward[] = [
 const RewardsPage = () => {
   const userPoints = 840;
   const { toast } = useToast();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [hoveredReward, setHoveredReward] = useState<string | null>(null);
 
   const categories = Array.from(new Set(rewards.map(reward => reward.category)));
+
+  const filteredRewards = selectedCategory 
+    ? rewards.filter(reward => reward.category === selectedCategory)
+    : rewards;
 
   const handleRedeemReward = (reward: Reward) => {
     if (userPoints >= reward.pointsRequired) {
@@ -119,154 +126,242 @@ const RewardsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-eco-light flex flex-col">
       <Navbar />
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-eco-dark mb-8">
-            Eco Rewards
+          <h2 className="text-4xl font-bold text-center text-eco-dark mb-2">
+            <span className="inline-block relative">
+              Eco Rewards
+              <span className="absolute -top-4 -right-8">
+                <Sparkles className="h-6 w-6 text-amber-400" />
+              </span>
+            </span>
           </h2>
+          <p className="text-center text-gray-600 max-w-2xl mx-auto mb-10 italic">
+            Turn your eco-friendly actions into amazing rewards
+          </p>
           
-          <div className="max-w-5xl mx-auto mb-10 bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="bg-eco-gradient p-6 text-white">
-              <div className="flex justify-between items-center">
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-5xl mx-auto mb-10 bg-white rounded-xl shadow-lg overflow-hidden border border-eco-light"
+          >
+            <div className="bg-eco-gradient p-8 text-white relative overflow-hidden">
+              <div className="flex justify-between items-center relative z-10">
                 <div>
-                  <h3 className="text-xl font-bold mb-1">Your Eco Points</h3>
-                  <p className="text-white text-opacity-80">Redeem points for exciting rewards</p>
+                  <h3 className="text-2xl font-bold mb-1">Your Eco Points</h3>
+                  <p className="text-white text-opacity-90">Redeem points for exciting rewards</p>
                 </div>
-                <div className="text-4xl font-bold">{userPoints}</div>
+                <div className="text-5xl font-bold flex items-center">
+                  <span className="mr-2 text-amber-200">{userPoints}</span>
+                  <Star className="h-8 w-8 text-amber-200" />
+                </div>
+              </div>
+              
+              <div className="absolute top-0 right-0 h-full w-1/3 opacity-10">
+                <Award className="h-full w-full" />
               </div>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <Card className="bg-eco-light border-none">
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-medium text-sm mb-1">Lifetime Points</h4>
-                    <p className="text-2xl font-bold text-eco-dark">1,245</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-eco-light border-none">
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-medium text-sm mb-1">Points This Month</h4>
-                    <p className="text-2xl font-bold text-eco-dark">320</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-eco-light border-none">
-                  <CardContent className="p-4 text-center">
-                    <h4 className="font-medium text-sm mb-1">Rewards Redeemed</h4>
-                    <p className="text-2xl font-bold text-eco-dark">3</p>
-                  </CardContent>
-                </Card>
+            <div className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <motion.div 
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-green-50 rounded-xl p-6 text-center shadow-sm border border-eco border-opacity-20"
+                >
+                  <h4 className="font-medium text-sm mb-1 text-gray-500">Lifetime Points</h4>
+                  <p className="text-3xl font-bold text-eco-dark">1,245</p>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-eco-light rounded-xl p-6 text-center shadow-sm border border-eco border-opacity-20"
+                >
+                  <h4 className="font-medium text-sm mb-1 text-gray-500">Points This Month</h4>
+                  <p className="text-3xl font-bold text-eco-dark">320</p>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.03 }}
+                  className="bg-amber-50 rounded-xl p-6 text-center shadow-sm border border-amber-200 border-opacity-20"
+                >
+                  <h4 className="font-medium text-sm mb-1 text-gray-500">Rewards Redeemed</h4>
+                  <p className="text-3xl font-bold text-eco-dark">3</p>
+                </motion.div>
               </div>
               
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-gray-500">Next reward milestone: $10 Amazon Gift Card</p>
                 <p className="text-sm font-medium">{userPoints}/1000 points</p>
               </div>
-              <Progress value={(userPoints / 1000) * 100} className="h-2" />
+              <Progress value={(userPoints / 1000) * 100} className="h-3 bg-gray-100" />
             </div>
-          </div>
+          </motion.div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          <div className="mb-8 flex flex-wrap justify-center gap-4">
+            <Button 
+              onClick={() => setSelectedCategory(null)}
+              className={`${!selectedCategory ? 'bg-eco text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+            >
+              All Rewards
+            </Button>
             {categories.map(category => (
-              <div key={category} className="col-span-full">
-                <h3 className="capitalize text-xl font-semibold mb-4 flex items-center text-eco-dark">
-                  <Gift className="h-5 w-5 mr-2" />
-                  {category} Rewards
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {rewards
-                    .filter(reward => reward.category === category)
-                    .map(reward => (
-                      <Card key={reward.id} className="overflow-hidden h-full flex flex-col">
-                        <div className="relative h-48">
-                          <img 
-                            src={reward.image} 
-                            alt={reward.title}
-                            className="w-full h-full object-cover"
-                          />
-                          {reward.isNew && (
-                            <Badge className="absolute top-2 right-2 bg-eco text-white">
-                              New
-                            </Badge>
-                          )}
-                          {reward.isExclusive && (
-                            <Badge className="absolute top-2 right-2 bg-amber-500 text-white">
-                              Exclusive
-                            </Badge>
-                          )}
-                        </div>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-lg">{reward.title}</CardTitle>
-                          {reward.availableUntil && (
-                            <CardDescription className="flex items-center text-amber-600">
-                              <Info className="h-3 w-3 mr-1" />
-                              Available until {new Date(reward.availableUntil).toLocaleDateString()}
-                            </CardDescription>
-                          )}
-                        </CardHeader>
-                        <CardContent className="py-0 flex-grow">
-                          <p className="text-gray-600 text-sm">{reward.description}</p>
-                        </CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                          <div className="font-bold text-eco-dark">
-                            {reward.pointsRequired} points
-                          </div>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  disabled={userPoints < reward.pointsRequired}
-                                  onClick={() => handleRedeemReward(reward)}
-                                  className={userPoints >= reward.pointsRequired ? "bg-eco hover:bg-eco-dark text-white" : ""}
-                                >
-                                  Redeem
-                                  <ChevronRight className="w-4 h-4 ml-1" />
-                                </Button>
-                              </TooltipTrigger>
-                              {userPoints < reward.pointsRequired && (
-                                <TooltipContent>
-                                  <p>You need {reward.pointsRequired - userPoints} more points</p>
-                                </TooltipContent>
-                              )}
-                            </Tooltip>
-                          </TooltipProvider>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                </div>
-              </div>
+              <Button 
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`capitalize ${selectedCategory === category ? 'bg-eco text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                {category}
+              </Button>
             ))}
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm max-w-5xl mx-auto">
-            <h3 className="font-semibold mb-4">How to Earn More Points</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border border-eco border-opacity-30 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Daily Actions</h4>
-                <ul className="text-sm space-y-2">
-                  <li>• Record sustainable transportation (+5 pts)</li>
-                  <li>• Track energy-saving activities (+3 pts)</li>
-                  <li>• Waste recycling and composting (+2 pts)</li>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+            {filteredRewards.map(reward => (
+              <motion.div
+                key={reward.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ y: -5 }}
+                onHoverStart={() => setHoveredReward(reward.id)}
+                onHoverEnd={() => setHoveredReward(null)}
+              >
+                <Card className="overflow-hidden h-full flex flex-col border-2 transition-all duration-300 shadow-sm hover:shadow-xl"
+                  style={{ borderColor: hoveredReward === reward.id ? '#4CAF50' : 'transparent' }}>
+                  <div className="relative h-48">
+                    <img 
+                      src={reward.image} 
+                      alt={reward.title}
+                      className="w-full h-full object-cover transition-transform duration-500"
+                      style={{ transform: hoveredReward === reward.id ? 'scale(1.05)' : 'scale(1)' }}
+                    />
+                    {reward.isNew && (
+                      <Badge className="absolute top-2 right-2 bg-eco text-white">
+                        New
+                      </Badge>
+                    )}
+                    {reward.isExclusive && (
+                      <Badge className="absolute top-2 right-2 bg-amber-500 text-white">
+                        Exclusive
+                      </Badge>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
+                      <p className="text-white font-medium text-sm">{reward.category.toUpperCase()}</p>
+                    </div>
+                  </div>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg flex items-center">
+                      {reward.title}
+                    </CardTitle>
+                    {reward.availableUntil && (
+                      <CardDescription className="flex items-center text-amber-600">
+                        <Info className="h-3 w-3 mr-1" />
+                        Available until {new Date(reward.availableUntil).toLocaleDateString()}
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent className="py-0 flex-grow">
+                    <p className="text-gray-600 text-sm">{reward.description}</p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center">
+                    <div className="font-bold text-eco-dark flex items-center">
+                      <Star className="h-4 w-4 mr-1 fill-amber-400 stroke-amber-500" />
+                      {reward.pointsRequired} points
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <motion.div whileTap={{ scale: 0.95 }}>
+                            <Button 
+                              size="sm" 
+                              disabled={userPoints < reward.pointsRequired}
+                              onClick={() => handleRedeemReward(reward)}
+                              className={userPoints >= reward.pointsRequired ? "bg-eco hover:bg-eco-dark text-white" : ""}
+                            >
+                              Redeem
+                              <ChevronRight className="w-4 h-4 ml-1" />
+                            </Button>
+                          </motion.div>
+                        </TooltipTrigger>
+                        {userPoints < reward.pointsRequired && (
+                          <TooltipContent>
+                            <p>You need {reward.pointsRequired - userPoints} more points</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="bg-white p-8 rounded-lg shadow-sm max-w-5xl mx-auto border border-eco-light">
+            <h3 className="font-semibold mb-6 text-xl text-eco-dark flex items-center">
+              <Gift className="h-5 w-5 mr-2 text-eco" />
+              How to Earn More Points
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="border border-eco border-opacity-30 rounded-lg p-6 bg-gradient-to-br from-white to-eco-light bg-opacity-50"
+              >
+                <h4 className="font-medium mb-3 text-eco-dark">Daily Actions</h4>
+                <ul className="text-sm space-y-3">
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Record sustainable transportation <span className="font-medium text-eco-dark">(+5 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Track energy-saving activities <span className="font-medium text-eco-dark">(+3 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Waste recycling and composting <span className="font-medium text-eco-dark">(+2 pts)</span></span>
+                  </li>
                 </ul>
-              </div>
-              <div className="border border-eco border-opacity-30 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Challenges</h4>
-                <ul className="text-sm space-y-2">
-                  <li>• Complete weekly eco challenges (+25 pts)</li>
-                  <li>• Join community cleanup events (+50 pts)</li>
-                  <li>• Participate in eco workshops (+15 pts)</li>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="border border-eco border-opacity-30 rounded-lg p-6 bg-gradient-to-br from-white to-eco-light bg-opacity-50"
+              >
+                <h4 className="font-medium mb-3 text-eco-dark">Challenges</h4>
+                <ul className="text-sm space-y-3">
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Complete weekly eco challenges <span className="font-medium text-eco-dark">(+25 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Join community cleanup events <span className="font-medium text-eco-dark">(+50 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Participate in eco workshops <span className="font-medium text-eco-dark">(+15 pts)</span></span>
+                  </li>
                 </ul>
-              </div>
-              <div className="border border-eco border-opacity-30 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Education</h4>
-                <ul className="text-sm space-y-2">
-                  <li>• Complete eco knowledge quizzes (+10 pts)</li>
-                  <li>• Read sustainability articles (+5 pts)</li>
-                  <li>• Share eco tips with friends (+3 pts)</li>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="border border-eco border-opacity-30 rounded-lg p-6 bg-gradient-to-br from-white to-eco-light bg-opacity-50"
+              >
+                <h4 className="font-medium mb-3 text-eco-dark">Education</h4>
+                <ul className="text-sm space-y-3">
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Complete eco knowledge quizzes <span className="font-medium text-eco-dark">(+10 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Read sustainability articles <span className="font-medium text-eco-dark">(+5 pts)</span></span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-eco mr-2">•</span>
+                    <span>Share eco tips with friends <span className="font-medium text-eco-dark">(+3 pts)</span></span>
+                  </li>
                 </ul>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
